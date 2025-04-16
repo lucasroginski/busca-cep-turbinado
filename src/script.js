@@ -1,5 +1,5 @@
 function pesquisarCep() {
-    var cep = document.getElementById("cep").value.replace(/\D/g, '');
+    var cep = document.getElementById("ce").value.replace(/\D/g, '');
     var resultado = document.getElementById("resultado");
     if (!cep || cep.length != 8) {
         resultado.innerHTML = '<p style="color: red">CEP inválido! digite 8 números</p>';
