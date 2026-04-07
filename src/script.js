@@ -21,7 +21,7 @@ function mostrarAba(aba){
 
 function validarEmail(email){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)}
 
-function mostrarMensagem(div,mensagem,tipo){div.innerHTML=`<p style="color: ${tipo==='erro'?'#e74c3c':'#27ae60'};font-weight:bold;">${mensagem}</p>`}
+function mostrarMensagem(div,mensagem,tipo){div.innerHTML=`<p style="color: ${tipo==='erro'?'#f44336':'#4caf50'};font-weight:bold;">${mensagem}</p>`}
 
 function cadastrarCliente(e){
     e.preventDefault();
@@ -128,16 +128,16 @@ function buscarProdutos(){
     
     const nomesCat={eletronico:'Eletrônico',roupa:'Roupa',alimento:'Alimento',livro:'Livro',outro:'Outro'};
     div.innerHTML=filtrados.map(p=>`
-        <div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid #667eea;">
+        <div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid #2196f3;">
             <h4 style="margin:0 0 0.5rem 0;color:#333;">${p.nome}</h4>
             <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;">${p.descricao}</p>
             <div style="display:flex;justify-content:space-between;align-items:center;margin-top:0.5rem;">
-                <span style="color:#27ae60;font-weight:bold;">R$ ${p.preco.toFixed(2)}</span>
+                <span style="color:#2196f3;font-weight:bold;">R$ ${p.preco.toFixed(2)}</span>
                 <span style="color:#6c757d;">Qtd: ${p.quantidade}</span>
-                <span style="background:#e9ecef;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.8rem;">${nomesCat[p.categoria]||p.categoria}</span>
+                <span style="background:#e3f2fd;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.8rem;color:#1976d2;">${nomesCat[p.categoria]||p.categoria}</span>
             </div>
             <div style="margin-top:0.5rem;">
-                <button onclick="excluirProduto(${p.id})" style="background:#e74c3c;color:white;border:none;padding:0.3rem 0.8rem;border-radius:4px;cursor:pointer;font-size:0.8rem;">Excluir</button>
+                <button onclick="excluirProduto(${p.id})" style="background:#f44336;color:white;border:none;padding:0.3rem 0.8rem;border-radius:4px;cursor:pointer;font-size:0.8rem;">Excluir</button>
             </div>
         </div>`).join('');
 }
@@ -152,13 +152,13 @@ function buscarClientes(){
     if(filtrados.length===0){div.innerHTML='<p style="text-align:center;color:#6c757d;">Nenhum cliente encontrado.</p>';return}
     
     div.innerHTML=filtrados.map(c=>`
-        <div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid #28a745;">
+        <div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid #2196f3;">
             <h4 style="margin:0 0 0.5rem 0;color:#333;">${c.nome}</h4>
             <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>E-mail:</strong> ${c.email}</p>
             <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>ID:</strong> ${c.id}</p>
             <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>Data:</strong> ${new Date(c.dataCadastro).toLocaleDateString('pt-BR')}</p>
             <div style="margin-top:0.5rem;">
-                <button onclick="excluirCliente(${c.id})" style="background:#e74c3c;color:white;border:none;padding:0.3rem 0.8rem;border-radius:4px;cursor:pointer;font-size:0.8rem;">Excluir</button>
+                <button onclick="excluirCliente(${c.id})" style="background:#f44336;color:white;border:none;padding:0.3rem 0.8rem;border-radius:4px;cursor:pointer;font-size:0.8rem;">Excluir</button>
             </div>
         </div>`).join('');
 }
