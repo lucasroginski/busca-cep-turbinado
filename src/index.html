@@ -1,29 +1,75 @@
     <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>busca_cep</title>
-        <link rel="stylesheet" href="style.css">
-    </head>
-    <body>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Cadastro de Clientes</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
         <header>
-            <h1>Consulta de CEP</h1>
-            <img src="../assets/images/logo.png" alt="logo Correios"
-            class="logo-correios">
+            <h1>Sistema de Clientes</h1>
         </header>
+        
         <main>
-            <label for="CEP">digite o CEP</label>
-            <br>
-            <input type="text" id="cep" maxlength="9" 
-            placeholder="exe: 83601-390">
-            <br>
-            <button onclick="pesquisarCep()">Buscar</button>
-            <div id="resultado">
+            <!-- Abas de Navegação -->
+            <div class="tabs">
+                <button class="tab-btn active" onclick="mostrarAba('login')">Login</button>
+                <button class="tab-btn" onclick="mostrarAba('cadastro')">Cadastro</button>
+            </div>
 
+            <!-- Formulário de Login -->
+            <div id="login-form" class="form-container active">
+                <h2>Fazer Login</h2>
+                <form onsubmit="fazerLogin(event)">
+                    <div class="form-group">
+                        <label for="login-email">E-mail:</label>
+                        <input type="email" id="login-email" required placeholder="seu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-senha">Senha:</label>
+                        <input type="password" id="login-senha" required placeholder="Digite sua senha">
+                    </div>
+                    <button type="submit" class="btn-primary">Entrar</button>
+                </form>
+                <div id="login-mensagem"></div>
+            </div>
+
+            <!-- Formulário de Cadastro -->
+            <div id="cadastro-form" class="form-container">
+                <h2>Cadastrar Cliente</h2>
+                <form onsubmit="cadastrarCliente(event)">
+                    <div class="form-group">
+                        <label for="cadastro-nome">Nome Completo:</label>
+                        <input type="text" id="cadastro-nome" required placeholder="Seu nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label for="cadastro-email">E-mail:</label>
+                        <input type="email" id="cadastro-email" required placeholder="seu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="cadastro-senha">Senha:</label>
+                        <input type="password" id="cadastro-senha" required placeholder="Digite sua senha" minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="cadastro-confirmar-senha">Confirmar Senha:</label>
+                        <input type="password" id="cadastro-confirmar-senha" required placeholder="Confirme sua senha">
+                    </div>
+                    <button type="submit" class="btn-primary">Cadastrar</button>
+                </form>
+                <div id="cadastro-mensagem"></div>
+            </div>
+
+            <!-- Área do Usuário Logado -->
+            <div id="area-usuario" class="form-container" style="display: none;">
+                <h2>Bem-vindo!</h2>
+                <div id="dados-usuario"></div>
+                <button onclick="fazerLogout()" class="btn-secondary">Sair</button>
             </div>
         </main>
-        <script src="script.js"></script>
-       
+    </div>
+    
+    <script src="script.js"></script>
 </body>
 </html>
