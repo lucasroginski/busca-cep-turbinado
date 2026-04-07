@@ -13,7 +13,7 @@ function mostrarAba(aba){
         'cadastro':()=>{document.querySelector('.tab-btn:nth-child(2)').classList.add('active');document.getElementById('cadastro-form').classList.add('active')},
         'cadastrar-produto':()=>{document.querySelector('.tab-btn:nth-child(3)').classList.add('active');document.getElementById('cadastrar-produto-form').classList.add('active')},
         'consultar-produto':()=>{document.querySelector('.tab-btn:nth-child(4)').classList.add('active');document.getElementById('consultar-produto-form').classList.add('active');buscarProdutos()},
-        'consultar-clientes':()=>{document.querySelector('.tab-btn:nth-child(5)').classList.add('active');document.getElementById('consultar-clientes-form').classList.add('active');buscarClientes()}
+        'consultar-clientes':()=>{document.querySelector('.tab-btn:nth-child(5)').classList.add('active');document.getElementById('consultar-clientes-form').classList.add('active');buscarClientes()},
     };
     
     if(abaMap[aba])abaMap[aba]();
@@ -76,11 +76,11 @@ function mostrarAreaUsuario(){
         <p><strong>Nome:</strong> ${usuarioLogado.nome}</p>
         <p><strong>E-mail:</strong> ${usuarioLogado.email}</p>
         <p><strong>ID:</strong> ${usuarioLogado.id}</p>
-        <div style="margin-top:1rem;">
-            <button onclick="mostrarAba('cadastrar-produto')" class="btn-secondary" style="margin-right:0.5rem;">Cadastrar Produto</button>
-            <button onclick="mostrarAba('consultar-produto')" class="btn-secondary" style="margin-right:0.5rem;">Ver Produtos</button>
-            <button onclick="mostrarAba('consultar-clientes')" class="btn-secondary">Ver Clientes</button>
-        </div>`;
+        <div class="botoes-usuario">
+            <button onclick="mostrarAba('cadastrar-produto')" class="btn-secondary">📦 Cadastrar</button>
+            <button onclick="mostrarAba('consultar-produto')" class="btn-secondary">📋 Produtos</button>
+            <button onclick="mostrarAba('consultar-clientes')" class="btn-secondary">👥 Clientes</button>
+                    </div>`;
 }
 
 function fazerLogout(){

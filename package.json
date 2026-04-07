@@ -7,7 +7,11 @@
     "start": "node server.js",
     "dev": "node server.js"
   },
-  "keywords": ["cadastro", "login", "clientes"],
+  "keywords": [
+    "cadastro",
+    "login",
+    "clientes"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
