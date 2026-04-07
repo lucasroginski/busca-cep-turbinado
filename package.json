@@ -1,0 +1,16 @@
+{
+  "name": "sistema-cadastro-clientes",
+  "version": "1.0.0",
+  "description": "Sistema de cadastro e login de clientes",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  },
+  "keywords": ["cadastro", "login", "clientes"],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.2"
+  }
+}
