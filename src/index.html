@@ -3,21 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
-    <title>Sistema de Cadastro de Clientes</title>
+    <title>Sistema de Controle de Estoque</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <div class="container">
         <header>
-            <h1>Sistema de Clientes</h1>
+            <h1> Controle de Estoque</h1>
         </header>
         <main>
             <div class="tabs">
                 <button class="tab-btn active" onclick="mostrarAba('login')">Login</button>
                 <button class="tab-btn" onclick="mostrarAba('cadastro')">Cadastro</button>
-                <button class="tab-btn" onclick="mostrarAba('cadastrar-produto')" id="aba-produto" style="display:none">Cadastrar Produto</button>
-                <button class="tab-btn" onclick="mostrarAba('consultar-produto')" id="aba-consulta" style="display:none">Consultar Produtos</button>
-                <button class="tab-btn" onclick="mostrarAba('consultar-clientes')" id="aba-clientes" style="display:none">Consultar Clientes</button>
+                <button class="tab-btn" onclick="mostrarAba('cadastrar-produto')" id="aba-produto" style="display:none">Adicionar Item</button>
+                <button class="tab-btn" onclick="mostrarAba('consultar-produto')" id="aba-consulta" style="display:none">Estoque</button>
+                <button class="tab-btn" onclick="mostrarAba('movimentacoes')" id="aba-movimentacoes" style="display:none">Movimentações</button>
             </div>
             <div id="login-form" class="form-container active">
                 <h2>Fazer Login</h2>
@@ -33,6 +33,13 @@
                     <button type="submit" class="btn-primary">Entrar</button>
                 </form>
                 <div id="login-mensagem"></div>
+                <div style="margin-top: 20px; text-align: center;">
+                    <button type="button" class="btn-secondary" onclick="verClientesRegistrados()">👥 Ver Todos os Clientes</button>
+                </div>
+                <div id="lista-clientes" style="margin-top:2rem; display:none;">
+                    <h3>Clientes Cadastrados</h3>
+                    <div id="clientes-encontrados"></div>
+                </div>
             </div>
             <div id="cadastro-form" class="form-container">
                 <h2>Cadastrar Cliente</h2>
@@ -63,23 +70,15 @@
                 <button onclick="fazerLogout()" class="btn-secondary">Sair</button>
             </div>
             <div id="cadastrar-produto-form" class="form-container">
-                <h2>Cadastrar Produto</h2>
+                <h2>Adicionar Item ao Estoque</h2>
                 <form onsubmit="cadastrarProduto(event)">
                     <div class="form-group">
-                        <label for="produto-nome">Nome:</label>
-                        <input type="text" id="produto-nome" required placeholder="Nome produto">
+                        <label for="produto-nome">Nome do Item:</label>
+                        <input type="text" id="produto-nome" required placeholder="Nome do item">
                     </div>
                     <div class="form-group">
-                        <label for="produto-descricao">Descrição:</label>
-                        <textarea id="produto-descricao" required placeholder="Descrição" rows="3"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label for="produto-preco">Preço (R$):</label>
-                        <input type="number" id="produto-preco" required placeholder="0.00" step="0.01" min="0">
-                    </div>
-                    <div class="form-group">
-                        <label for="produto-quantidade">Quantidade:</label>
-                        <input type="number" id="produto-quantidade" required placeholder="0" min="0">
+                        <label for="produto-codigo">Código/SKU:</label>
+                        <input type="text" id="produto-codigo" required placeholder="Código do produto">
                     </div>
                     <div class="form-group">
                         <label for="produto-categoria">Categoria:</label>
@@ -89,18 +88,40 @@
                             <option value="roupa">Roupa</option>
                             <option value="alimento">Alimento</option>
                             <option value="livro">Livro</option>
+                            <option value="moveis">Móveis</option>
+                            <option value="ferramentas">Ferramentas</option>
                             <option value="outro">Outro</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn-primary">Cadastrar Produto</button>
+                    <div class="form-group">
+                        <label for="produto-quantidade">Quantidade:</label>
+                        <input type="number" id="produto-quantidade" required placeholder="0" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="produto-quantidade-minima">Quantidade Mínima:</label>
+                        <input type="number" id="produto-quantidade-minima" required placeholder="5" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="produto-preco">Preço Unitário (R$):</label>
+                        <input type="number" id="produto-preco" required placeholder="0.00" step="0.01" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="produto-fornecedor">Fornecedor:</label>
+                        <input type="text" id="produto-fornecedor" placeholder="Nome do fornecedor">
+                    </div>
+                    <div class="form-group">
+                        <label for="produto-descricao">Descrição:</label>
+                        <textarea id="produto-descricao" placeholder="Descrição do item" rows="3"></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary">Adicionar Item</button>
                 </form>
                 <div id="produto-mensagem"></div>
             </div>
             <div id="consultar-produto-form" class="form-container">
-                <h2>Consultar Produtos</h2>
+                <h2>Visualizar Estoque</h2>
                 <div class="form-group">
-                    <label for="busca-produto">Buscar:</label>
-                    <input type="text" id="busca-produto" placeholder="Nome produto" onkeyup="buscarProdutos()">
+                    <label for="busca-produto">Buscar Item:</label>
+                    <input type="text" id="busca-produto" placeholder="Nome ou código" onkeyup="buscarProdutos()">
                 </div>
                 <div class="form-group">
                     <label for="filtro-categoria">Categoria:</label>
@@ -110,27 +131,70 @@
                         <option value="roupa">Roupa</option>
                         <option value="alimento">Alimento</option>
                         <option value="livro">Livro</option>
+                        <option value="moveis">Móveis</option>
+                        <option value="ferramentas">Ferramentas</option>
                         <option value="outro">Outro</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="filtro-estoque">Status do Estoque:</label>
+                    <select id="filtro-estoque" onchange="buscarProdutos()">
+                        <option value="">Todos</option>
+                        <option value="normal">Normal</option>
+                        <option value="baixo">Estoque Baixo</option>
+                        <option value="zerado">Sem Estoque</option>
                     </select>
                 </div>
                 <button onclick="buscarProdutos()" class="btn-primary">Buscar</button>
                 <button onclick="limparBusca()" class="btn-secondary">Limpar</button>
                 <div id="lista-produtos" style="margin-top:2rem">
-                    <h3>Produtos</h3>
+                    <h3>Itens em Estoque</h3>
                     <div id="produtos-encontrados"></div>
                 </div>
             </div>
-            <div id="consultar-clientes-form" class="form-container">
-                <h2>Consultar Clientes</h2>
+            <div id="movimentacoes-form" class="form-container">
+                <h2>Movimentações de Estoque</h2>
                 <div class="form-group">
-                    <label for="busca-cliente">Buscar:</label>
-                    <input type="text" id="busca-cliente" placeholder="Nome ou email" onkeyup="buscarClientes()">
+                    <label for="mov-produto">Selecionar Item:</label>
+                    <select id="mov-produto" required>
+                        <option value="">Selecione um item</option>
+                    </select>
                 </div>
-                <button onclick="buscarClientes()" class="btn-primary">Buscar</button>
-                <button onclick="limparBuscaClientes()" class="btn-secondary">Limpar</button>
-                <div id="lista-clientes" style="margin-top:2rem">
-                    <h3>Clientes</h3>
-                    <div id="clientes-encontrados"></div>
+                <div class="form-group">
+                    <label for="mov-tipo">Tipo de Movimentação:</label>
+                    <select id="mov-tipo" required onchange="atualizarCamposMovimentacao()">
+                        <option value="">Selecione</option>
+                        <option value="entrada">Entrada</option>
+                        <option value="saida">Saída</option>
+                        <option value="ajuste">Ajuste</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="mov-quantidade">Quantidade:</label>
+                    <input type="number" id="mov-quantidade" required placeholder="0" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="mov-motivo">Motivo:</label>
+                    <select id="mov-motivo" required>
+                        <option value="">Selecione</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="mov-observacao">Observação:</label>
+                    <textarea id="mov-observacao" placeholder="Observações sobre a movimentação" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn-primary" onclick="registrarMovimentacao(event)">Registrar Movimentação</button>
+                <div id="movimentacao-mensagem"></div>
+                
+                <div style="margin-top:2rem">
+                    <h3>Histórico de Movimentações</h3>
+                    <div class="form-group">
+                        <label for="filtro-data">Filtrar por Data:</label>
+                        <input type="date" id="filtro-data" onchange="buscarMovimentacoes()">
+                    </div>
+                    <button onclick="buscarMovimentacoes()" class="btn-primary">Atualizar</button>
+                    <button onclick="limparFiltroMovimentacoes()" class="btn-secondary">Limpar</button>
+                    <div id="movimentacoes-encontradas" style="margin-top:1rem"></div>
                 </div>
             </div>
         </main>
