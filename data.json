@@ -1,0 +1,235 @@
+{
+  "usuarios": [
+    {
+      "nome": "Lucas Roginski",
+      "email": "Lucas@gmail.com",
+      "senha": "$2a$10$I8X1klUJmwdqybs1QzuzY.kDhatMgx0/wgA0p/.c/8G4A1rLSOsuq",
+      "id": 1,
+      "data_cadastro": "2026-04-08T12:47:23.803Z"
+    },
+    {
+      "nome": "Teste",
+      "email": "teste@email.com",
+      "senha": "$2a$10$V98q58kzcQIh6AwEwvI4uurpu7BXAedqT19yYU9QySgAEL4/fK0Ti",
+      "id": 2,
+      "data_cadastro": "2026-04-08T12:52:30.424Z"
+    },
+    {
+      "nome": "alan",
+      "email": "Cuzao@gmail.com",
+      "senha": "$2a$10$wSz5zCjg58bdW8JCGnTSPeJDjPf3mTwOeYrKEsSwQX8K/x4kC0ObK",
+      "id": 3,
+      "data_cadastro": "2026-04-08T14:02:21.574Z"
+    }
+  ],
+  "clientes": [
+    {
+      "nome": "Teste Cliente",
+      "email": "teste@cliente.com",
+      "telefone": "11999999999",
+      "endereco": "Rua Teste, 123",
+      "senha": "$2a$10$Q6.vNbOv3h2V2f1EPPvgeOdt2vURZkPMHwCxlpngnzha0wxnlUP8W",
+      "id": 1,
+      "data_cadastro": "2026-04-08T13:43:35.437Z"
+    },
+    {
+      "nome": "lucas lima",
+      "email": "lima@gmail.com",
+      "telefone": "11000000000",
+      "endereco": "rua do mel",
+      "senha": "$2a$10$LWYqFAcMrQ1bRPBO00d1B.SRdoQQYsRJNgbbGsXSOqycTTxeTkYou",
+      "id": 2,
+      "data_cadastro": "2026-04-08T13:44:30.889Z"
+    },
+    {
+      "nome": "kelvis",
+      "email": "Lucas@gmail.com",
+      "telefone": "110000000999",
+      "endereco": "rua do mel sem mel",
+      "senha": "$2a$10$ZZD8sluoJbypW/nsCXDQWu1QfOoZA2E3tJ81kqTa7RmjT0lfsKGku",
+      "id": 3,
+      "data_cadastro": "2026-04-08T14:06:19.836Z"
+    }
+  ],
+  "produtos": [
+    {
+      "nome": "microndas",
+      "codigo": "12345",
+      "descricao": "127v ou 220v",
+      "preco": 500,
+      "quantidade": 10,
+      "quantidade_minima": 3,
+      "categoria": "eletronico",
+      "fornecedor": "Electrolux",
+      "usuario_id": 1,
+      "id": 1,
+      "data_cadastro": "2026-04-08T12:49:11.191Z"
+    },
+    {
+      "nome": "celular",
+      "codigo": "15346",
+      "descricao": "s10",
+      "preco": 5000,
+      "quantidade": 3,
+      "quantidade_minima": 2,
+      "categoria": "eletronico",
+      "fornecedor": "samsung",
+      "usuario_id": 1,
+      "id": 2,
+      "data_cadastro": "2026-04-08T13:27:35.912Z"
+    },
+    {
+      "nome": "camisa",
+      "codigo": "33334",
+      "descricao": "uma camisa feita com amor",
+      "preco": 67,
+      "quantidade": 3,
+      "quantidade_minima": 2,
+      "categoria": "roupa",
+      "fornecedor": "mãe do kelvis",
+      "usuario_id": 3,
+      "id": 3,
+      "data_cadastro": "2026-04-08T14:04:08.953Z"
+    },
+    {
+      "nome": "camisa do framengo",
+      "codigo": "33334",
+      "descricao": "addfff",
+      "preco": 67,
+      "quantidade": 10,
+      "quantidade_minima": 2,
+      "categoria": "roupa",
+      "fornecedor": "mãe do kelvis",
+      "usuario_id": 3,
+      "id": 4,
+      "data_cadastro": "2026-04-08T14:04:42.790Z"
+    }
+  ],
+  "movimentacoes": [
+    {
+      "produto_id": 1,
+      "produto_nome": "microndas",
+      "tipo": "entrada",
+      "quantidade": 10,
+      "motivo": "Cadastro inicial",
+      "observacao": "Item adicionado ao estoque",
+      "usuario_id": 1,
+      "id": 1,
+      "data_movimentacao": "2026-04-08T12:49:11.196Z"
+    },
+    {
+      "produto_id": 1,
+      "produto_nome": "microndas",
+      "tipo": "saida",
+      "quantidade": 1,
+      "motivo": "Venda",
+      "observacao": "pagamento a vista",
+      "usuario_id": 1,
+      "id": 2,
+      "data_movimentacao": "2026-04-08T12:49:47.073Z"
+    },
+    {
+      "produto_id": 1,
+      "produto_nome": "microndas",
+      "tipo": "ajuste",
+      "quantidade": 1,
+      "motivo": "Ajuste de Sistema",
+      "observacao": "falhando",
+      "usuario_id": 1,
+      "id": 3,
+      "data_movimentacao": "2026-04-08T12:57:18.777Z"
+    },
+    {
+      "produto_id": 2,
+      "produto_nome": "celular",
+      "tipo": "entrada",
+      "quantidade": 5,
+      "motivo": "Cadastro inicial",
+      "observacao": "Item adicionado ao estoque",
+      "usuario_id": 1,
+      "id": 4,
+      "data_movimentacao": "2026-04-08T13:27:35.916Z"
+    },
+    {
+      "produto_id": 2,
+      "produto_nome": "celular",
+      "tipo": "saida",
+      "quantidade": 1,
+      "motivo": "Venda",
+      "observacao": "pagamento a vista",
+      "usuario_id": 1,
+      "id": 5,
+      "data_movimentacao": "2026-04-08T13:49:15.106Z"
+    },
+    {
+      "produto_id": 2,
+      "produto_nome": "celular",
+      "tipo": "saida",
+      "quantidade": 1,
+      "motivo": "Venda",
+      "observacao": "Pedido #1 - Cliente: 2",
+      "usuario_id": 1,
+      "id": 6,
+      "data_movimentacao": "2026-04-08T14:00:17.947Z"
+    },
+    {
+      "produto_id": 3,
+      "produto_nome": "camisa",
+      "tipo": "entrada",
+      "quantidade": 10,
+      "motivo": "Cadastro inicial",
+      "observacao": "Item adicionado ao estoque",
+      "usuario_id": 3,
+      "id": 7,
+      "data_movimentacao": "2026-04-08T14:04:08.957Z"
+    },
+    {
+      "produto_id": 4,
+      "produto_nome": "camisa do framengo",
+      "tipo": "entrada",
+      "quantidade": 10,
+      "motivo": "Cadastro inicial",
+      "observacao": "Item adicionado ao estoque",
+      "usuario_id": 3,
+      "id": 8,
+      "data_movimentacao": "2026-04-08T14:04:42.795Z"
+    },
+    {
+      "produto_id": 3,
+      "produto_nome": "camisa",
+      "tipo": "saida",
+      "quantidade": 7,
+      "motivo": "Venda",
+      "observacao": "Pedido #2 - Cliente: 3",
+      "usuario_id": 3,
+      "id": 9,
+      "data_movimentacao": "2026-04-08T14:07:46.513Z"
+    }
+  ],
+  "pedidos": [
+    {
+      "cliente_id": 2,
+      "produto_id": 2,
+      "produto_nome": "celular",
+      "quantidade": 1,
+      "observacao": "pagamento a vista",
+      "preco_unitario": 5000,
+      "total": 5000,
+      "id": 1,
+      "data_pedido": "2026-04-08T13:47:08.952Z",
+      "status": "enviado"
+    },
+    {
+      "cliente_id": 3,
+      "produto_id": 3,
+      "produto_nome": "camisa",
+      "quantidade": 7,
+      "observacao": "no",
+      "preco_unitario": 67,
+      "total": 469,
+      "id": 2,
+      "data_pedido": "2026-04-08T14:07:07.948Z",
+      "status": "enviado"
+    }
+  ]
+}

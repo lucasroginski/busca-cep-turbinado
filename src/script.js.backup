@@ -145,7 +145,8 @@ function fazerLogout(){
     document.getElementById('area-usuario').classList.remove('active');
     document.querySelector('.tab-btn:nth-child(1)').style.display='block';
     document.querySelector('.tab-btn:nth-child(2)').style.display='block';
-    ['aba-produto','aba-consulta','aba-movimentacoes','aba-gerenciar-pedidos'].forEach(id=>document.getElementById(id).style.display='none');
+    ['aba-produto','aba-consulta','aba-movimentacoes'].forEach(id=>document.getElementById(id).style.display='none');
+    document.getElementById('aba-gerenciar-pedidos').style.display='none';
     mostrarAba('login');
     ['login-email','login-senha','login-mensagem'].forEach(id=>document.getElementById(id).value='');
 }
@@ -213,6 +214,18 @@ async function buscarProdutos(){
             }
         }
         
+        // Atualizar estatísticas
+        const totalItens = produtos.reduce((sum, p) => sum + p.quantidade, 0);
+        const itensBaixoEstoque = produtos.filter(p=>p.quantidade <= (p.quantidade_minima||5)).length;
+        
+        const totalItensEl = document.getElementById('total-itens');
+        const alertasEl = document.getElementById('alertas-estoque');
+        if(totalItensEl) totalItensEl.textContent = totalItens;
+        if(alertasEl) {
+            alertasEl.textContent = itensBaixoEstoque;
+            alertasEl.style.color = itensBaixoEstoque > 0 ? '#f44336' : '#4caf50';
+        }
+        
         if(filtrados.length===0){div.innerHTML='<p style="text-align:center;color:#6c757d;">Nenhum item encontrado.</p>';return}
         
         const nomesCat={eletronico:'Eletrônico',roupa:'Roupa',alimento:'Alimento',livro:'Livro',moveis:'Móveis',ferramentas:'Ferramentas',outro:'Outro'};
@@ -248,10 +261,281 @@ async function buscarProdutos(){
     }
 }
 
-async function carregarClientesPublicos(){
+async function buscarClientes(){
+    const termo=document.getElementById('busca-cliente').value.toLowerCase();
+    const div=document.getElementById('clientes-encontrados');
+    
     try {
         clientes = await apiRequest('/usuarios');
+        
+        let filtrados = clientes;
+        if(termo)filtrados=filtrados.filter(c=>c.nome.toLowerCase().includes(termo)||c.email.toLowerCase().includes(termo));
+        
+        if(filtrados.length===0){div.innerHTML='<p style="text-align:center;color:#6c757d;">Nenhum cliente encontrado.</p>';return}
+        
+        div.innerHTML=filtrados.map(c=>`
+            <div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid #2196f3;">
+                <h4 style="margin:0 0 0.5rem 0;color:#333;">${c.nome}</h4>
+                <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>E-mail:</strong> ${c.email}</p>
+                <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>ID:</strong> ${c.id}</p>
+                <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>Data:</strong> ${new Date(c.data_cadastro).toLocaleDateString('pt-BR')}</p>
+            </div>`).join('');
     } catch (error) {
+        div.innerHTML = '<p style="text-align:center;color:#f44336;">Erro ao buscar clientes.</p>';
+        console.error('Erro ao buscar clientes:', error);
+    }
+}
+
+async function verClientesRegistrados(){
+    const listaClientesDiv = document.getElementById('lista-clientes');
+    const div=document.getElementById('clientes-encontrados');
+    
+    try {
+        const clientes = await apiRequest('/usuarios');
+        
+        if(clientes.length===0){
+            div.innerHTML='<p style="text-align:center;color:#6c757d;">Nenhum cliente encontrado.</p>';
+        } else {
+            div.innerHTML=clientes.map(c=>`
+                <div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid #2196f3;">
+                    <h4 style="margin:0 0 0.5rem 0;color:#333;">${c.nome}</h4>
+                    <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>E-mail:</strong> ${c.email}</p>
+                    <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>ID:</strong> ${c.id}</p>
+                    <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>Data:</strong> ${new Date(c.data_cadastro).toLocaleDateString('pt-BR')}</p>
+                </div>
+            `).join('');
+        }
+        
+        // Mostrar/ocultar a seção de clientes
+        if (listaClientesDiv.style.display === 'none') {
+            listaClientesDiv.style.display = 'block';
+        } else {
+            listaClientesDiv.style.display = 'none';
+        }
+    } catch (error) {
+        div.innerHTML = '<p style="text-align:center;color:#f44336;">Erro ao carregar clientes.</p>';
+        console.error('Erro ao buscar clientes:', error);
+    }
+}
+
+function limparBusca(){document.getElementById('busca-produto').value='';document.getElementById('filtro-categoria').value='';document.getElementById('filtro-estoque').value='';buscarProdutos()}
+function limparBuscaClientes(){document.getElementById('busca-cliente').value='';buscarClientes()}
+
+async function excluirProduto(id){
+    if(confirm('Excluir este item e todas as movimentações relacionadas?')){
+        try {
+            await apiRequest(`/produtos/${id}`, {
+                method: 'DELETE'
+            });
+            buscarProdutos();
+        } catch (error) {
+            alert('Erro ao excluir produto: ' + error.message);
+        }
+    }
+}
+
+async function carregarProdutosMovimentacao(){
+    try {
+        produtos = await apiRequest(`/produtos/${usuarioLogado.id}`);
+        const select=document.getElementById('mov-produto');
+        
+        select.innerHTML='<option value="">Selecione um item</option>';
+        produtos.forEach(p=>{
+            select.innerHTML+=`<option value="${p.id}">${p.nome} (Qtd: ${p.quantidade})</option>`;
+        });
+    } catch (error) {
+        console.error('Erro ao carregar produtos para movimentação:', error);
+    }
+}
+
+function atualizarCamposMovimentacao(){
+    const tipo=document.getElementById('mov-tipo').value;
+    const motivoSelect=document.getElementById('mov-motivo');
+    
+    const motivos={
+        'entrada': ['Compra','Devolução','Ajuste de Inventário','Transferência','Produção'],
+        'saida': ['Venda','Uso Interno','Perda','Dano','Transferência','Devolução'],
+        'ajuste': ['Correção de Estoque','Inventário','Ajuste de Sistema']
+    };
+    
+    motivoSelect.innerHTML='<option value="">Selecione</option>';
+    if(tipo && motivos[tipo]){
+        motivos[tipo].forEach(motivo=>{
+            motivoSelect.innerHTML+=`<option value="${motivo}">${motivo}</option>`;
+        });
+    }
+}
+
+async function registrarMovimentacao(event){
+    event.preventDefault();
+    
+    const produtoId=parseInt(document.getElementById('mov-produto').value);
+    const tipo=document.getElementById('mov-tipo').value;
+    const quantidade=parseInt(document.getElementById('mov-quantidade').value);
+    const motivo=document.getElementById('mov-motivo').value;
+    const observacao=document.getElementById('mov-observacao').value.trim();
+    const msgDiv=document.getElementById('movimentacao-mensagem');
+    
+    if(!produtoId||!tipo||isNaN(quantidade)||!motivo){
+        mostrarMensagem(msgDiv,'Preencha todos os campos obrigatórios!','erro');
+        return;
+    }
+    
+    const produto=produtos.find(p=>p.id===produtoId && p.usuario_id===usuarioLogado.id);
+    if(!produto){
+        mostrarMensagem(msgDiv,'Produto não encontrado!','erro');
+        return;
+    }
+    
+    if(tipo==='saida' && quantidade>produto.quantidade){
+        mostrarMensagem(msgDiv,'Quantidade insuficiente em estoque!','erro');
+        return;
+    }
+        
+    try {
+        await apiRequest('/movimentacoes', {
+            method: 'POST',
+            body: JSON.stringify({
+                produto_id: produtoId,
+                produto_nome: produto.nome,
+                tipo: tipo,
+                quantidade: quantidade,
+                motivo: motivo,
+                observacao: observacao,
+                usuario_id: usuarioLogado.id
+            })
+        });
+            
+        mostrarMensagem(msgDiv,'Movimentação registrada com sucesso!','sucesso');
+            
+        ['mov-produto','mov-tipo','mov-quantidade','mov-motivo','mov-observacao'].forEach(id=>document.getElementById(id).value='');
+            
+        carregarProdutosMovimentacao();
+        buscarMovimentacoes();
+    } catch (error) {
+        mostrarMensagem(msgDiv, error.message, 'erro');
+    }
+}
+
+async function buscarMovimentacoes(){
+    const filtroData=document.getElementById('filtro-data').value;
+    const div=document.getElementById('movimentacoes-encontradas');
+    
+    try {
+        movimentacoes = await apiRequest(`/movimentacoes/${usuarioLogado.id}`);
+        
+        let filtrados = movimentacoes;
+        if(filtroData){
+            const dataFiltro=new Date(filtroData);
+            filtrados=filtrados.filter(m=>{
+                const dataMov=new Date(m.data_movimentacao);
+                return dataMov.toDateString()===dataFiltro.toDateString();
+            });
+        }
+        
+        filtrados.sort((a,b)=>new Date(b.data_movimentacao)-new Date(a.data_movimentacao));
+        
+        if(filtrados.length===0){
+            div.innerHTML='<p style="text-align:center;color:#6c757d;">Nenhuma movimentação encontrada.</p>';
+            return;
+        }
+        
+        div.innerHTML=filtrados.map(m=>{
+            const corTipo=m.tipo==='entrada'?'#4caf50':m.tipo==='saida'?'#f44336':'#ff9800';
+            const iconeTipo=m.tipo==='entrada'?'⬆️':m.tipo==='saida'?'⬇️':'🔄';
+            
+            return `
+            <div style="background:#f8f9fa;padding:1rem;margin-bottom:0.8rem;border-radius:8px;border-left:4px solid ${corTipo};">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.5rem;">
+                    <h4 style="margin:0;color:#333;">${m.produto_nome}</h4>
+                    <span style="background:${corTipo};color:white;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;font-weight:bold;">
+                        ${iconeTipo} ${m.tipo.toUpperCase()}
+                    </span>
+                </div>
+                <p style="margin:0.3rem 0;color:#6c757d;font-size:0.8rem;">
+                    <strong>Quantidade:</strong> ${m.quantidade} | <strong>Motivo:</strong> ${m.motivo}
+                </p>
+                ${m.observacao ? `<p style="margin:0.3rem 0;color:#6c757d;font-size:0.8rem;"><strong>Obs:</strong> ${m.observacao}</p>` : ''}
+                <p style="margin:0.3rem 0;color:#6c757d;font-size:0.8rem;">
+                    <strong>Data:</strong> ${new Date(m.data_movimentacao).toLocaleString('pt-BR')}
+                </p>
+            </div>`;
+        }).join('');
+    } catch (error) {
+        div.innerHTML = '<p style="text-align:center;color:#f44336;">Erro ao carregar movimentações.</p>';
+        console.error('Erro ao buscar movimentações:', error);
+    }
+}
+
+function limparFiltroMovimentacoes(){
+    document.getElementById('filtro-data').value='';
+    buscarMovimentacoes();
+}
+
+function editarProduto(id){
+    const produto=produtos.find(p=>p.id===id && p.usuarioId===usuarioLogado.id);
+    if(!produto)return;
+    
+    const novaQuantidade=prompt(`Editar quantidade do item "${produto.nome}":`, produto.quantidade);
+    if(novaQuantidade===null)return;
+    
+    const quantidade=parseInt(novaQuantidade);
+    if(isNaN(quantidade)||quantidade<0){
+        alert('Quantidade inválida!');
+        return;
+    }
+    
+    const diferenca=quantidade-produto.quantidade;
+    produto.quantidade=quantidade;
+    localStorage.setItem('produtos',JSON.stringify(produtos));
+    
+    if(diferenca!==0){
+        movimentacoes.push({
+            id:Date.now(),
+            produtoId:produto.id,
+            produtoNome:produto.nome,
+            tipo:diferenca>0?'entrada':'saida',
+            quantidade:Math.abs(diferenca),
+            motivo:'Ajuste Manual',
+            observacao:`Quantidade ajustada de ${produto.quantidade-diferenca} para ${quantidade}`,
+            usuarioId:usuarioLogado.id,
+            dataMovimentacao:new Date().toISOString()
+        });
+        localStorage.setItem('movimentacoes',JSON.stringify(movimentacoes));
+    }
+    
+    buscarProdutos();
+}
+
+async function carregarClientesPublicos(){
+    const div=document.getElementById('clientes-publicos');
+    if(!div)return;
+    
+    try {
+        clientes = await apiRequest('/usuarios');
+        
+        if(clientes.length===0){
+            div.innerHTML='<p style="text-align:center;color:#6c757d;">Nenhum usuário cadastrado ainda.</p>';
+            return;
+        }
+        
+        const clientesOrdenados=clientes.sort((a,b)=>new Date(b.data_cadastro)-new Date(a.data_cadastro));
+        
+        div.innerHTML=clientesOrdenados.map(c=>`
+            <div style="background:#f8f9fa;padding:0.8rem;margin-bottom:0.5rem;border-radius:6px;border-left:3px solid #2196f3;">
+                <div style="display:flex;justify-content:space-between;align-items:center;">
+                    <div>
+                        <strong style="color:#333;">${c.nome}</strong>
+                        <div style="font-size:0.8rem;color:#6c757d;">${c.email}</div>
+                    </div>
+                    <div style="font-size:0.7rem;color:#2196f3;">
+                        ${new Date(c.data_cadastro).toLocaleDateString('pt-BR')}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    } catch (error) {
+        div.innerHTML = '<p style="text-align:center;color:#f44336;">Erro ao carregar clientes.</p>';
         console.error('Erro ao carregar clientes públicos:', error);
     }
 }
@@ -310,11 +594,13 @@ async function fazerLoginCliente(e){
 }
 
 function mostrarAreaCliente(){
+    // Esconder abas de login/cadastro
     document.querySelector('.tab-btn:nth-child(1)').style.display='none';
     document.querySelector('.tab-btn:nth-child(2)').style.display='none';
     document.querySelector('.tab-btn:nth-child(3)').style.display='none';
     document.querySelector('.tab-btn:nth-child(4)').style.display='none';
     
+    // Mostrar abas de cliente
     document.getElementById('aba-pedido').style.display='block';
     document.getElementById('aba-meus-pedidos').style.display='block';
     
@@ -340,11 +626,13 @@ function fazerLogoutCliente(){
     document.getElementById('area-cliente').style.display='none';
     document.getElementById('area-cliente').classList.remove('active');
     
+    // Mostrar abas de login/cadastro
     document.querySelector('.tab-btn:nth-child(1)').style.display='block';
     document.querySelector('.tab-btn:nth-child(2)').style.display='block';
     document.querySelector('.tab-btn:nth-child(3)').style.display='block';
     document.querySelector('.tab-btn:nth-child(4)').style.display='block';
     
+    // Esconder abas de cliente
     document.getElementById('aba-pedido').style.display='none';
     document.getElementById('aba-meus-pedidos').style.display='none';
     
@@ -381,6 +669,7 @@ async function fazerPedido(e){
     }
     
     try {
+        // Obter dados do produto
         const produtos = await apiRequest('/produtos-publicos');
         const produto = produtos.find(p => p.id === produtoId);
         
@@ -407,6 +696,97 @@ async function fazerPedido(e){
         
         mostrarMensagem(msgDiv,'Pedido realizado com sucesso!','sucesso');
         
+        // Limpar formulário
+        document.getElementById('pedido-produto').value = '';
+        document.getElementById('pedido-quantidade').value = '';
+        document.getElementById('pedido-observacao').value = '';
+        
+        setTimeout(()=>{mostrarAba('meus-pedidos');msgDiv.innerHTML=''},2000);
+    } catch (error) {
+        mostrarMensagem(msgDiv, error.message, 'erro');
+    }
+}
+
+async function carregarMeusPedidos(){
+    const div = document.getElementById('pedidos-encontrados');
+    
+    try {
+        const pedidos = await apiRequest(`/pedidos/cliente/${clienteLogado.id}`);
+        
+        if(pedidos.length === 0){
+            div.innerHTML = '<p style="text-align:center;color:#6c757d;">Nenhum pedido encontrado.</p>';
+            return;
+        }
+        
+        const statusCores = {
+            pendente: '#ff9800',
+            aprovado: '#4caf50',
+            recusado: '#f44336',
+            enviado: '#2196f3'
+        };
+        
+        const statusTextos = {
+            pendente: 'Pendente',
+            aprovado: 'Aprovado',
+            recusado: 'Recusado',
+            enviado: 'Enviado'
+        };
+        
+        div.innerHTML = pedidos.map(pedido => `
+            <div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid ${statusCores[pedido.status]};">
+                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.5rem;">
+                    <h4 style="margin:0;color:#333;">${pedido.produto_nome}</h4>
+                    <span style="background:${statusCores[pedido.status]};color:white;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;font-weight:bold;">${statusTextos[pedido.status]}</span>
+                </div>
+                <p style="margin:0.3rem 0;color:#6c757d;"><strong>Quantidade:</strong> ${pedido.quantidade}</p>
+                <p style="margin:0.3rem 0;color:#6c757d;"><strong>Preço Unitário:</strong> R$${pedido.preco_unitario.toFixed(2)}</p>
+                <p style="margin:0.3rem 0;color:#6c757d;"><strong>Total:</strong> R$${pedido.total.toFixed(2)}</p>
+    } catch (error) {
+        console.error('Erro ao carregar produtos:', error);
+    }
+}
+
+async function fazerPedido(e){
+    e.preventDefault();
+    const produtoId = parseInt(document.getElementById('pedido-produto').value);
+    const quantidade = parseInt(document.getElementById('pedido-quantidade').value);
+    const observacao = document.getElementById('pedido-observacao').value.trim();
+    const msgDiv = document.getElementById('pedido-mensagem');
+    
+    if(!produtoId || !quantidade){
+        mostrarMensagem(msgDiv,'Selecione um produto e informe a quantidade!','erro');
+        return;
+    }
+    
+    try {
+        // Obter dados do produto
+        const produtos = await apiRequest('/produtos-publicos');
+        const produto = produtos.find(p => p.id === produtoId);
+        
+        if(!produto){
+            mostrarMensagem(msgDiv,'Produto não encontrado!','erro');
+            return;
+        }
+        
+        if(produto.quantidade < quantidade){
+            mostrarMensagem(msgDiv,'Estoque insuficiente!','erro');
+            return;
+        }
+        
+        const pedido = await apiRequest('/pedidos', {
+            method: 'POST',
+            body: JSON.stringify({
+                cliente_id: clienteLogado.id,
+                produto_id: produtoId,
+                produto_nome: produto.nome,
+                quantidade,
+                observacao
+            })
+        });
+        
+        mostrarMensagem(msgDiv,'Pedido realizado com sucesso!','sucesso');
+        
+        // Limpar formulário
         document.getElementById('pedido-produto').value = '';
         document.getElementById('pedido-quantidade').value = '';
         document.getElementById('pedido-observacao').value = '';
@@ -469,6 +849,7 @@ async function carregarTodosPedidos(){
     try {
         let pedidos = await apiRequest('/pedidos');
         
+        // Filtrar por status se necessário
         if(filtroStatus){
             pedidos = pedidos.filter(p => p.status === filtroStatus);
         }
@@ -478,6 +859,7 @@ async function carregarTodosPedidos(){
             return;
         }
         
+        // Obter informações dos clientes
         const clientes = await apiRequest('/clientes');
         
         const statusCores = {
@@ -498,19 +880,21 @@ async function carregarTodosPedidos(){
             const cliente = clientes.find(c => c.id === pedido.cliente_id);
             const nomeCliente = cliente ? cliente.nome : 'Cliente não encontrado';
             
+            // Botões de ação baseados no status
             let botoesAcao = '';
             if(pedido.status === 'pendente'){
                 botoesAcao = `
-                    <button onclick="atualizarStatusPedido(${pedido.id}, 'aprovado')" style="background:#4caf50;color:white;border:none;padding:0.3rem 0.8rem;border-radius:4px;cursor:pointer;font-size:0.8rem;margin-right:0.5rem;">✅ Aprovar</button>
-                    <button onclick="atualizarStatusPedido(${pedido.id}, 'recusado')" style="background:#f44336;color:white;border:none;padding:0.3rem 0.8rem;border-radius:4px;cursor:pointer;font-size:0.8rem;">❌ Recusar</button>
+                    <button onclick="atualizarStatusPedido(${pedido.id}, 'aprovado')" style="background:#4caf50;color:white;border:none;padding:0.3rem 0.8rem;border-radius:4px;cursor:pointer;font-size:0.8rem;margin-right:0.5rem;"> Aprovar</button>
+                    <button onclick="atualizarStatusPedido(${pedido.id}, 'recusado')" style="background:#f44336;color:white;border:none;padding:0.3rem 0.8rem;border-radius:4px;cursor:pointer;font-size:0.8rem;"> Recusar</button>
                 `;
             } else if(pedido.status === 'aprovado'){
                 botoesAcao = `
-                    <button onclick="atualizarStatusPedido(${pedido.id}, 'enviado')" style="background:#2196f3;color:white;border:none;padding:0.3rem 0.8rem;border-radius:4px;cursor:pointer;font-size:0.8rem;">📦 Enviar</button>
+                    <button onclick="atualizarStatusPedido(${pedido.id}, 'enviado')" style="background:#2196f3;color:white;border:none;padding:0.3rem 0.8rem;border-radius:4px;cursor:pointer;font-size:0.8rem;"> Enviar</button>
                 `;
             }
             
-            return `<div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid ${statusCores[pedido.status]};">
+            return `
+            <div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid ${statusCores[pedido.status]};">
                 <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.5rem;">
                     <div>
                         <h4 style="margin:0;color:#333;">${pedido.produto_nome}</h4>
@@ -524,8 +908,8 @@ async function carregarTodosPedidos(){
                 ${pedido.observacao ? `<p style="margin:0.3rem 0;color:#6c757d;"><strong>Observação:</strong> ${pedido.observacao}</p>` : ''}
                 <p style="margin:0.5rem 0;color:#2196f3;font-size:0.8rem;"><strong>Data:</strong> ${new Date(pedido.data_pedido).toLocaleDateString('pt-BR')} ${new Date(pedido.data_pedido).toLocaleTimeString('pt-BR')}</p>
                 ${botoesAcao}
-            </div>`;
-        }).join('');
+            </div>
+        `).join('');
     } catch (error) {
         div.innerHTML = '<p style="text-align:center;color:#f44336;">Erro ao carregar pedidos.</p>';
         console.error('Erro ao carregar todos os pedidos:', error);
@@ -539,12 +923,15 @@ async function atualizarStatusPedido(pedidoId, novoStatus){
             body: JSON.stringify({ status: novoStatus })
         });
         
+        // Se aprovou, registrar movimentação de saída no estoque
         if(novoStatus === 'aprovado'){
             await registrarMovimentacaoPedido(pedidoId);
         }
         
+        // Recarregar a lista de pedidos
         carregarTodosPedidos();
         
+        // Mostrar mensagem de sucesso
         const mensagem = novoStatus === 'aprovado' ? 'Pedido aprovado e estoque atualizado!' :
                         novoStatus === 'recusado' ? 'Pedido recusado!' :
                         'Pedido enviado!';
@@ -557,11 +944,13 @@ async function atualizarStatusPedido(pedidoId, novoStatus){
 
 async function registrarMovimentacaoPedido(pedidoId){
     try {
+        // Obter detalhes do pedido
         const pedidos = await apiRequest('/pedidos');
         const pedido = pedidos.find(p => p.id === pedidoId);
         
         if(!pedido) return;
         
+        // Registrar movimentação de saída
         await apiRequest('/movimentacoes', {
             method: 'POST',
             body: JSON.stringify({
@@ -576,181 +965,5 @@ async function registrarMovimentacaoPedido(pedidoId){
         });
     } catch (error) {
         console.error('Erro ao registrar movimentação:', error);
-    }
-}
-
-// Funções auxiliares
-async function carregarProdutosMovimentacao(){
-    try {
-        produtos = await apiRequest(`/produtos/${usuarioLogado.id}`);
-        const select=document.getElementById('mov-produto');
-        
-        select.innerHTML='<option value="">Selecione um item</option>';
-        produtos.forEach(p=>{
-            select.innerHTML+=`<option value="${p.id}">${p.nome} (Qtd: ${p.quantidade})</option>`;
-        });
-    } catch (error) {
-        console.error('Erro ao carregar produtos para movimentação:', error);
-    }
-}
-
-function atualizarCamposMovimentacao(){
-    const tipo=document.getElementById('mov-tipo').value;
-    const motivoSelect=document.getElementById('mov-motivo');
-    
-    const motivos={
-        'entrada': ['Compra','Devolução','Ajuste de Inventário','Transferência','Produção'],
-        'saida': ['Venda','Uso Interno','Perda','Dano','Transferência','Devolução'],
-        'ajuste': ['Correção de Estoque','Inventário','Ajuste de Sistema']
-    };
-    
-    motivoSelect.innerHTML='<option value="">Selecione</option>';
-    if(motivos[tipo]){
-        motivos[tipo].forEach(motivo=>{
-            motivoSelect.innerHTML+=`<option value="${motivo}">${motivo}</option>`;
-        });
-    }
-}
-
-async function registrarMovimentacao(e){
-    e.preventDefault();
-    const produtoId=parseInt(document.getElementById('mov-produto').value);
-    const tipo=document.getElementById('mov-tipo').value;
-    const quantidade=parseInt(document.getElementById('mov-quantidade').value);
-    const motivo=document.getElementById('mov-motivo').value;
-    const observacao=document.getElementById('mov-observacao').value.trim();
-    const msgDiv=document.getElementById('movimentacao-mensagem');
-    
-    if(!produtoId||!tipo||!quantidade||!motivo){
-        mostrarMensagem(msgDiv,'Preencha todos os campos obrigatórios!','erro');
-        return;
-    }
-    
-    try {
-        const produto = produtos.find(p => p.id === produtoId);
-        if(!produto){
-            mostrarMensagem(msgDiv,'Produto não encontrado!','erro');
-            return;
-        }
-        
-        if(tipo === 'saida' && produto.quantidade < quantidade){
-            mostrarMensagem(msgDiv,'Estoque insuficiente para esta saída!','erro');
-            return;
-        }
-        
-        await apiRequest('/movimentacoes', {
-            method: 'POST',
-            body: JSON.stringify({
-                produto_id: produtoId,
-                produto_nome: produto.nome,
-                tipo,
-                quantidade,
-                motivo,
-                observacao,
-                usuario_id: usuarioLogado.id
-            })
-        });
-        
-        mostrarMensagem(msgDiv,'Movimentação registrada com sucesso!','sucesso');
-        
-        ['mov-produto','mov-tipo','mov-quantidade','mov-motivo','mov-observacao'].forEach(id=>document.getElementById(id).value='');
-        carregarProdutosMovimentacao();
-        buscarMovimentacoes();
-        setTimeout(()=>msgDiv.innerHTML='',2000);
-    } catch (error) {
-        mostrarMensagem(msgDiv, error.message, 'erro');
-    }
-}
-
-async function buscarMovimentacoes(){
-    const filtroData=document.getElementById('filtro-data').value;
-    const div=document.getElementById('movimentacoes-encontradas');
-    
-    try {
-        let movimentacoes = await apiRequest(`/movimentacoes/${usuarioLogado.id}`);
-        
-        if(filtroData){
-            movimentacoes = movimentacoes.filter(m => 
-                new Date(m.data_movimentacao).toDateString() === new Date(filtroData).toDateString()
-            );
-        }
-        
-        if(movimentacoes.length===0){
-            div.innerHTML='<p style="text-align:center;color:#6c757d;">Nenhuma movimentação encontrada.</p>';
-            return;
-        }
-        
-        const tipoCores={
-            'entrada': '#4caf50',
-            'saida': '#f44336',
-            'ajuste': '#ff9800'
-        };
-        
-        div.innerHTML=movimentacoes.map(m=>`
-            <div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid ${tipoCores[m.tipo]};">
-                <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.5rem;">
-                    <h4 style="margin:0;color:#333;">${m.produto_nome}</h4>
-                    <span style="background:${tipoCores[m.tipo]};color:white;padding:0.2rem 0.5rem;border-radius:4px;font-size:0.7rem;font-weight:bold;">${m.tipo.toUpperCase()}</span>
-                </div>
-                <p style="margin:0.3rem 0;color:#6c757d;"><strong>Quantidade:</strong> ${m.quantidade}</p>
-                <p style="margin:0.3rem 0;color:#6c757d;"><strong>Motivo:</strong> ${m.motivo}</p>
-                ${m.observacao ? `<p style="margin:0.3rem 0;color:#6c757d;"><strong>Observação:</strong> ${m.observacao}</p>` : ''}
-                <p style="margin:0.5rem 0;color:#2196f3;font-size:0.8rem;"><strong>Data:</strong> ${new Date(m.data_movimentacao).toLocaleDateString('pt-BR')} ${new Date(m.data_movimentacao).toLocaleTimeString('pt-BR')}</p>
-            </div>
-        `).join('');
-    } catch (error) {
-        div.innerHTML = '<p style="text-align:center;color:#f44336;">Erro ao carregar movimentações.</p>';
-        console.error('Erro ao buscar movimentações:', error);
-    }
-}
-
-function limparBusca(){document.getElementById('busca-produto').value='';document.getElementById('filtro-categoria').value='';document.getElementById('filtro-estoque').value='';buscarProdutos()}
-function limparFiltroMovimentacoes(){document.getElementById('filtro-data').value='';buscarMovimentacoes()}
-
-async function excluirProduto(id){
-    if(confirm('Excluir este item e todas as movimentações relacionadas?')){
-        try {
-            await apiRequest(`/produtos/${id}`, {
-                method: 'DELETE'
-            });
-            buscarProdutos();
-        } catch (error) {
-            alert('Erro ao excluir produto: ' + error.message);
-        }
-    }
-}
-
-async function editarProduto(id){
-    alert('Função de edição em desenvolvimento!');
-}
-
-async function verClientesRegistrados(){
-    const listaClientesDiv = document.getElementById('lista-clientes');
-    const div=document.getElementById('clientes-encontrados');
-    
-    try {
-        const clientes = await apiRequest('/usuarios');
-        
-        if(clientes.length===0){
-            div.innerHTML='<p style="text-align:center;color:#6c757d;">Nenhum cliente encontrado.</p>';
-        } else {
-            div.innerHTML=clientes.map(c=>`
-                <div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid #2196f3;">
-                    <h4 style="margin:0 0 0.5rem 0;color:#333;">${c.nome}</h4>
-                    <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>E-mail:</strong> ${c.email}</p>
-                    <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>ID:</strong> ${c.id}</p>
-                    <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>Data:</strong> ${new Date(c.data_cadastro).toLocaleDateString('pt-BR')}</p>
-                </div>
-            `).join('');
-        }
-        
-        if (listaClientesDiv.style.display === 'none') {
-            listaClientesDiv.style.display = 'block';
-        } else {
-            listaClientesDiv.style.display = 'none';
-        }
-    } catch (error) {
-        div.innerHTML = '<p style="text-align:center;color:#f44336;">Erro ao carregar clientes.</p>';
-        console.error('Erro ao buscar clientes:', error);
     }
 }

@@ -13,11 +13,16 @@
         </header>
         <main>
             <div class="tabs">
-                <button class="tab-btn active" onclick="mostrarAba('login')">Login</button>
-                <button class="tab-btn" onclick="mostrarAba('cadastro')">Cadastro</button>
+                <button class="tab-btn active" onclick="mostrarAba('login')">Login Usuário</button>
+                <button class="tab-btn" onclick="mostrarAba('cadastro')">Cadastro Usuário</button>
+                <button class="tab-btn" onclick="mostrarAba('login-cliente')">Login Cliente</button>
+                <button class="tab-btn" onclick="mostrarAba('cadastro-cliente')">Cadastro Cliente</button>
                 <button class="tab-btn" onclick="mostrarAba('cadastrar-produto')" id="aba-produto" style="display:none">Adicionar Item</button>
                 <button class="tab-btn" onclick="mostrarAba('consultar-produto')" id="aba-consulta" style="display:none">Estoque</button>
                 <button class="tab-btn" onclick="mostrarAba('movimentacoes')" id="aba-movimentacoes" style="display:none">Movimentações</button>
+                <button class="tab-btn" onclick="mostrarAba('gerenciar-pedidos')" id="aba-gerenciar-pedidos" style="display:none">Gerenciar Pedidos</button>
+                <button class="tab-btn" onclick="mostrarAba('fazer-pedido')" id="aba-pedido" style="display:none">Fazer Pedido</button>
+                <button class="tab-btn" onclick="mostrarAba('meus-pedidos')" id="aba-meus-pedidos" style="display:none">Meus Pedidos</button>
             </div>
             <div id="login-form" class="form-container active">
                 <h2>Fazer Login</h2>
@@ -34,15 +39,15 @@
                 </form>
                 <div id="login-mensagem"></div>
                 <div style="margin-top: 20px; text-align: center;">
-                    <button type="button" class="btn-secondary" onclick="verClientesRegistrados()">👥 Ver Todos os Clientes</button>
+                    <button type="button" class="btn-secondary" onclick="verClientesRegistrados()">👥 Ver Todos os Usuários</button>
                 </div>
                 <div id="lista-clientes" style="margin-top:2rem; display:none;">
-                    <h3>Clientes Cadastrados</h3>
+                    <h3>Usuários Cadastrados</h3>
                     <div id="clientes-encontrados"></div>
                 </div>
             </div>
             <div id="cadastro-form" class="form-container">
-                <h2>Cadastrar Cliente</h2>
+                <h2>Cadastrar Usuário</h2>
                 <form onsubmit="cadastrarCliente(event)">
                     <div class="form-group">
                         <label for="cadastro-nome">Nome:</label>
@@ -197,6 +202,115 @@
                     <div id="movimentacoes-encontradas" style="margin-top:1rem"></div>
                 </div>
             </div>
+            
+            <!-- Login Cliente -->
+            <div id="login-cliente-form" class="form-container">
+                <h2>Login Cliente</h2>
+                <form onsubmit="fazerLoginCliente(event)">
+                    <div class="form-group">
+                        <label for="login-cliente-email">E-mail:</label>
+                        <input type="email" id="login-cliente-email" required placeholder="seu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="login-cliente-senha">Senha:</label>
+                        <input type="password" id="login-cliente-senha" required placeholder="Digite sua senha">
+                    </div>
+                    <button type="submit" class="btn-primary">Entrar</button>
+                </form>
+                <div id="login-cliente-mensagem"></div>
+            </div>
+            
+            <!-- Cadastro Cliente -->
+            <div id="cadastro-cliente-form" class="form-container">
+                <h2>Cadastrar Cliente</h2>
+                <form onsubmit="cadastrarClienteForm(event)">
+                    <div class="form-group">
+                        <label for="cliente-nome">Nome:</label>
+                        <input type="text" id="cliente-nome" required placeholder="Seu nome">
+                    </div>
+                    <div class="form-group">
+                        <label for="cliente-email">E-mail:</label>
+                        <input type="email" id="cliente-email" required placeholder="seu@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="cliente-telefone">Telefone:</label>
+                        <input type="tel" id="cliente-telefone" required placeholder="(00) 00000-0000">
+                    </div>
+                    <div class="form-group">
+                        <label for="cliente-endereco">Endereço:</label>
+                        <input type="text" id="cliente-endereco" required placeholder="Rua, número, bairro">
+                    </div>
+                    <div class="form-group">
+                        <label for="cliente-senha">Senha:</label>
+                        <input type="password" id="cliente-senha" required placeholder="Senha" minlength="6">
+                    </div>
+                    <div class="form-group">
+                        <label for="cliente-confirmar-senha">Confirmar Senha:</label>
+                        <input type="password" id="cliente-confirmar-senha" required placeholder="Confirme">
+                    </div>
+                    <button type="submit" class="btn-primary">Cadastrar</button>
+                </form>
+                <div id="cadastro-cliente-mensagem"></div>
+            </div>
+            
+            <!-- Área Cliente Logado -->
+            <div id="area-cliente" class="form-container" style="display:none">
+                <h2>Bem-vindo Cliente!</h2>
+                <div id="dados-cliente"></div>
+                <button onclick="fazerLogoutCliente()" class="btn-secondary">Sair</button>
+            </div>
+            
+            <!-- Fazer Pedido -->
+            <div id="fazer-pedido-form" class="form-container">
+                <h2>Fazer Pedido</h2>
+                <div class="form-group">
+                    <label for="pedido-produto">Selecionar Produto:</label>
+                    <select id="pedido-produto" required>
+                        <option value="">Selecione um produto</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="pedido-quantidade">Quantidade:</label>
+                    <input type="number" id="pedido-quantidade" required placeholder="0" min="1">
+                </div>
+                <div class="form-group">
+                    <label for="pedido-observacao">Observação:</label>
+                    <textarea id="pedido-observacao" placeholder="Observações sobre o pedido" rows="3"></textarea>
+                </div>
+                <button type="submit" class="btn-primary" onclick="fazerPedido(event)">Fazer Pedido</button>
+                <div id="pedido-mensagem"></div>
+            </div>
+            
+            <!-- Meus Pedidos -->
+            <div id="meus-pedidos-form" class="form-container">
+                <h2>Meus Pedidos</h2>
+                <button onclick="carregarMeusPedidos()" class="btn-primary">Atualizar Pedidos</button>
+                <div id="lista-pedidos" style="margin-top:2rem">
+                    <h3>Histórico de Pedidos</h3>
+                    <div id="pedidos-encontrados"></div>
+                </div>
+            </div>
+            
+            <!-- Gerenciar Pedidos (para usuários) -->
+            <div id="gerenciar-pedidos-form" class="form-container">
+                <h2>Gerenciar Pedidos de Clientes</h2>
+                <div class="form-group">
+                    <label for="filtro-status-pedidos">Filtrar por Status:</label>
+                    <select id="filtro-status-pedidos" onchange="carregarTodosPedidos()">
+                        <option value="">Todos</option>
+                        <option value="pendente">Pendentes</option>
+                        <option value="aprovado">Aprovados</option>
+                        <option value="recusado">Recusados</option>
+                        <option value="enviado">Enviados</option>
+                    </select>
+                </div>
+                <button onclick="carregarTodosPedidos()" class="btn-primary">Atualizar Pedidos</button>
+                <div id="lista-todos-pedidos" style="margin-top:2rem">
+                    <h3>Todos os Pedidos</h3>
+                    <div id="todos-pedidos-encontrados"></div>
+                </div>
+            </div>
+            
         </main>
     </div>
     <script src="script.js"></script>
