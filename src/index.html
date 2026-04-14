@@ -13,10 +13,12 @@
         </header>
         <main>
             <div class="tabs">
-                <button class="tab-btn active" onclick="mostrarAba('login')">Login Usuário</button>
-                <button class="tab-btn" onclick="mostrarAba('cadastro')">Cadastro Usuário</button>
-                <button class="tab-btn" onclick="mostrarAba('login-cliente')">Login Cliente</button>
-                <button class="tab-btn" onclick="mostrarAba('cadastro-cliente')">Cadastro Cliente</button>
+                <select id="tipo-usuario" onchange="mostrarAba(this.value)">
+                    <option value="usuario">Usuário</option>
+                    <option value="cliente">Cliente</option>
+                </select>
+                <button class="tab-btn active" onclick="mostrarAba('login')">Login</button>
+                <button class="tab-btn" onclick="mostrarAba('cadastro')">Cadastro</button>
                 <button class="tab-btn" onclick="mostrarAba('cadastrar-produto')" id="aba-produto" style="display:none">Adicionar Item</button>
                 <button class="tab-btn" onclick="mostrarAba('consultar-produto')" id="aba-consulta" style="display:none">Estoque</button>
                 <button class="tab-btn" onclick="mostrarAba('movimentacoes')" id="aba-movimentacoes" style="display:none">Movimentações</button>
@@ -25,8 +27,8 @@
                 <button class="tab-btn" onclick="mostrarAba('meus-pedidos')" id="aba-meus-pedidos" style="display:none">Meus Pedidos</button>
             </div>
             <div id="login-form" class="form-container active">
-                <h2>Fazer Login</h2>
-                <form onsubmit="fazerLogin(event)">
+                <h2 id="login-titulo">Login Usuário</h2>
+                <form id="login-form-element" onsubmit="fazerLogin(event)">
                     <div class="form-group">
                         <label for="login-email">E-mail:</label>
                         <input type="email" id="login-email" required placeholder="seu@email.com">
@@ -38,17 +40,17 @@
                     <button type="submit" class="btn-primary">Entrar</button>
                 </form>
                 <div id="login-mensagem"></div>
-                <div style="margin-top: 20px; text-align: center;">
-                    <button type="button" class="btn-secondary" onclick="verClientesRegistrados()">👥 Ver Todos os Usuários</button>
+                <div id="login-usuarios-section" style="margin-top: 20px; text-align: center;">
+                    <button type="button" class="btn-secondary" onclick="verUsuariosRegistrados()">👥 Ver Todos os Usuários</button>
                 </div>
                 <div id="lista-clientes" style="margin-top:2rem; display:none;">
-                    <h3>Usuários Cadastrados</h3>
+                    <h3 id="lista-titulo">Usuários Cadastrados</h3>
                     <div id="clientes-encontrados"></div>
                 </div>
             </div>
             <div id="cadastro-form" class="form-container">
-                <h2>Cadastrar Usuário</h2>
-                <form onsubmit="cadastrarCliente(event)">
+                <h2 id="cadastro-titulo">Cadastrar Usuário</h2>
+                <form id="cadastro-form-element">
                     <div class="form-group">
                         <label for="cadastro-nome">Nome:</label>
                         <input type="text" id="cadastro-nome" required placeholder="Seu nome">
@@ -56,6 +58,16 @@
                     <div class="form-group">
                         <label for="cadastro-email">E-mail:</label>
                         <input type="email" id="cadastro-email" required placeholder="seu@email.com">
+                    </div>
+                    <div id="campos-cliente" style="display:none;">
+                        <div class="form-group">
+                            <label for="cadastro-telefone">Telefone:</label>
+                            <input type="tel" id="cadastro-telefone" placeholder="(00) 00000-0000">
+                        </div>
+                        <div class="form-group">
+                            <label for="cadastro-endereco">Endereço:</label>
+                            <input type="text" id="cadastro-endereco" placeholder="Rua, número, bairro">
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="cadastro-senha">Senha:</label>

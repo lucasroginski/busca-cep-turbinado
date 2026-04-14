@@ -4,7 +4,9 @@ body{font-family:Segoe UI,Tahoma,Geneva,Verdana,sans-serif;background:linear-gra
 header{background:linear-gradient(135deg,#2196f3 0%,#1976d2 100%);color:white;text-align:center;padding:2rem 1rem}
 header h1{font-size:1.8rem;font-weight:600;margin:0}
 main{padding:2rem}
-.tabs{display:flex;margin-bottom:2rem;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-radius:15px;padding:8px;box-shadow:0 4px 15px rgba(0,0,0,0.08)}
+.tabs{display:flex;margin-bottom:2rem;background:linear-gradient(135deg,#f8f9fa,#e9ecef);border-radius:15px;padding:8px;box-shadow:0 4px 15px rgba(0,0,0,0.08);gap:10px}
+#tipo-usuario{padding:10px 15px;border:2px solid #e9ecef;border-radius:8px;background:white;font-size:0.9rem;font-weight:600;color:#495057;cursor:pointer;transition:all .3s ease;min-width:120px}
+#tipo-usuario:focus{outline:none;border-color:#2196f3;box-shadow:0 0 0 3px rgba(33,150,243,0.1)}
 .tab-btn{flex:1;padding:14px 16px;border:none;background:transparent;color:#6c757d;font-size:0.9rem;font-weight:600;cursor:pointer;border-radius:12px;transition:all .3s cubic-bezier(0.4,0,0.2,1);position:relative;overflow:hidden;text-transform:uppercase;letter-spacing:0.5px}
 .tab-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.3),transparent);transition:left 0.5s}
 .tab-btn:hover::before{left:100%}
