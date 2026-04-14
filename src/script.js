@@ -8,8 +8,8 @@ let usuarioLogado = localStorage.getItem('usuarioLogado') ? JSON.parse(localStor
 // Configuração da API
 const API_BASE = 'http://localhost:3000/api';
 
-document.addEventListener('DOMContentLoaded',()=>{
-    if(usuarioLogado)mostrarAreaUsuario();
+document.addEventListener('DOMContentLoaded', async ()=>{
+    if(usuarioLogado) await mostrarAreaUsuario();
     carregarClientesPublicos();
 });
 
@@ -18,19 +18,69 @@ function mostrarAba(aba){
     document.querySelectorAll('.form-container').forEach(form=>form.classList.remove('active'));
     
     const abaMap={
-        'login':()=>{document.querySelector('.tab-btn:nth-child(1)').classList.add('active');document.getElementById('login-form').classList.add('active')},
-        'cadastro':()=>{document.querySelector('.tab-btn:nth-child(2)').classList.add('active');document.getElementById('cadastro-form').classList.add('active')},
-        'login-cliente':()=>{document.querySelector('.tab-btn:nth-child(3)').classList.add('active');document.getElementById('login-cliente-form').classList.add('active')},
-        'cadastro-cliente':()=>{document.querySelector('.tab-btn:nth-child(4)').classList.add('active');document.getElementById('cadastro-cliente-form').classList.add('active')},
-        'cadastrar-produto':()=>{document.querySelector('.tab-btn:nth-child(5)').classList.add('active');document.getElementById('cadastrar-produto-form').classList.add('active')},
-        'consultar-produto':()=>{document.querySelector('.tab-btn:nth-child(6)').classList.add('active');document.getElementById('consultar-produto-form').classList.add('active');buscarProdutos()},
-        'movimentacoes':()=>{document.querySelector('.tab-btn:nth-child(7)').classList.add('active');document.getElementById('movimentacoes-form').classList.add('active');carregarProdutosMovimentacao();buscarMovimentacoes()},
-        'gerenciar-pedidos':()=>{document.querySelector('.tab-btn:nth-child(8)').classList.add('active');document.getElementById('gerenciar-pedidos-form').classList.add('active');carregarTodosPedidos()},
-        'fazer-pedido':()=>{document.querySelector('.tab-btn:nth-child(9)').classList.add('active');document.getElementById('fazer-pedido-form').classList.add('active');carregarProdutosParaPedido()},
-        'meus-pedidos':()=>{document.querySelector('.tab-btn:nth-child(10)').classList.add('active');document.getElementById('meus-pedidos-form').classList.add('active');carregarMeusPedidos()},
+        'login':()=>{document.querySelector('.tab-btn:nth-child(2)').classList.add('active');document.getElementById('login-form').classList.add('active');atualizarInterfaceLogin()},
+        'cadastro':()=>{document.querySelector('.tab-btn:nth-child(3)').classList.add('active');document.getElementById('cadastro-form').classList.add('active');atualizarInterfaceCadastro()},
+        'cadastrar-produto':()=>{document.querySelector('.tab-btn:nth-child(4)').classList.add('active');document.getElementById('cadastrar-produto-form').classList.add('active')},
+        'consultar-produto':()=>{document.querySelector('.tab-btn:nth-child(5)').classList.add('active');document.getElementById('consultar-produto-form').classList.add('active');buscarProdutos()},
+        'movimentacoes':()=>{document.querySelector('.tab-btn:nth-child(6)').classList.add('active');document.getElementById('movimentacoes-form').classList.add('active');carregarProdutosMovimentacao();buscarMovimentacoes()},
+        'gerenciar-pedidos':()=>{document.querySelector('.tab-btn:nth-child(7)').classList.add('active');document.getElementById('gerenciar-pedidos-form').classList.add('active');carregarTodosPedidos()},
+        'fazer-pedido':()=>{document.querySelector('.tab-btn:nth-child(8)').classList.add('active');document.getElementById('fazer-pedido-form').classList.add('active');carregarProdutosParaPedido()},
+        'meus-pedidos':()=>{document.querySelector('.tab-btn:nth-child(9)').classList.add('active');document.getElementById('meus-pedidos-form').classList.add('active');carregarMeusPedidos()},
+        'usuario':()=>{atualizarInterfaceLogin();mostrarAba('login')},
+        'cliente':()=>{atualizarInterfaceLogin();mostrarAba('login')}
     };
     
     if(abaMap[aba])abaMap[aba]();
+}
+
+function atualizarInterfaceLogin(){
+    const tipoUsuario = document.getElementById('tipo-usuario').value;
+    const tituloLogin = document.getElementById('login-titulo');
+    const loginForm = document.getElementById('login-form-element');
+    const usuariosSection = document.getElementById('login-usuarios-section');
+    const listaTitulo = document.getElementById('lista-titulo');
+    const verButton = usuariosSection.querySelector('button');
+    
+    console.log('atualizarInterfaceLogin chamado, tipoUsuario:', tipoUsuario);
+    
+    if(tipoUsuario === 'cliente'){
+        tituloLogin.textContent = 'Login Cliente';
+        loginForm.setAttribute('onsubmit', 'fazerLoginCliente(event)');
+        usuariosSection.style.display = 'block';
+        listaTitulo.textContent = 'Clientes Cadastrados';
+        verButton.setAttribute('onclick', 'verClientesRegistrados()');
+        verButton.textContent = '👥 Ver Todos os Clientes';
+    } else {
+        tituloLogin.textContent = 'Login Usuário';
+        loginForm.setAttribute('onsubmit', 'fazerLogin(event)');
+        usuariosSection.style.display = 'block';
+        listaTitulo.textContent = 'Usuários Cadastrados';
+        verButton.setAttribute('onclick', 'verUsuariosRegistrados()');
+        verButton.textContent = '👥 Ver Todos os Usuários';
+    }
+}
+
+function atualizarInterfaceCadastro(){
+    const tipoUsuario = document.getElementById('tipo-usuario').value;
+    const tituloCadastro = document.getElementById('cadastro-titulo');
+    const cadastroForm = document.getElementById('cadastro-form-element');
+    const camposCliente = document.getElementById('campos-cliente');
+    
+    console.log('atualizarInterfaceCadastro chamado, tipoUsuario:', tipoUsuario);
+    
+    if(tipoUsuario === 'cliente'){
+        tituloCadastro.textContent = 'Cadastrar Cliente';
+        cadastroForm.setAttribute('onsubmit', 'cadastrarCliente(event)');
+        camposCliente.style.display = 'block';
+        document.getElementById('cadastro-telefone').setAttribute('required', 'required');
+        document.getElementById('cadastro-endereco').setAttribute('required', 'required');
+    } else {
+        tituloCadastro.textContent = 'Cadastrar Usuário';
+        cadastroForm.setAttribute('onsubmit', 'cadastrarUsuario(event)');
+        camposCliente.style.display = 'none';
+        document.getElementById('cadastro-telefone').removeAttribute('required');
+        document.getElementById('cadastro-endereco').removeAttribute('required');
+    }
 }
 
 function validarEmail(email){return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)}
@@ -61,7 +111,7 @@ async function apiRequest(url, options = {}) {
     }
 }
 
-async function cadastrarCliente(e){
+async function cadastrarUsuario(e){
     e.preventDefault();
     const nome=document.getElementById('cadastro-nome').value.trim();
     const email=document.getElementById('cadastro-email').value.trim();
@@ -81,10 +131,48 @@ async function cadastrarCliente(e){
         
         mostrarMensagem(msgDiv,'Usuário cadastrado!','sucesso');
         
-        ['cadastro-nome','cadastro-email','cadastro-senha','cadastro-confirmar-senha'].forEach(id=>document.getElementById(id).value='');
+        ['cadastro-nome','cadastro-email','cadastro-senha','cadastro-confirmar-senha','cadastro-telefone','cadastro-endereco'].forEach(id=>document.getElementById(id).value='');
         carregarClientesPublicos();
         setTimeout(()=>{mostrarAba('login');msgDiv.innerHTML=''},2000);
     } catch (error) {
+        mostrarMensagem(msgDiv, error.message, 'erro');
+    }
+}
+
+async function cadastrarCliente(e){
+    e.preventDefault();
+    console.log('cadastrarCliente chamado');
+    
+    const nome=document.getElementById('cadastro-nome').value.trim();
+    const email=document.getElementById('cadastro-email').value.trim();
+    const telefone=document.getElementById('cadastro-telefone').value.trim();
+    const endereco=document.getElementById('cadastro-endereco').value.trim();
+    const senha=document.getElementById('cadastro-senha').value;
+    const confirmarSenha=document.getElementById('cadastro-confirmar-senha').value;
+    const msgDiv=document.getElementById('cadastro-mensagem');
+    
+    console.log('Dados do formulário:', { nome, email, telefone, endereco, senha: '***' });
+    
+    if(!validarEmail(email)){mostrarMensagem(msgDiv,'E-mail inválido!','erro');return}
+    if(senha!==confirmarSenha){mostrarMensagem(msgDiv,'As senhas não coincidem!','erro');return}
+    if(senha.length<6){mostrarMensagem(msgDiv,'Senha mínimo 6 caracteres!','erro');return}
+    if(!telefone || !endereco){mostrarMensagem(msgDiv,'Telefone e endereço são obrigatórios!','erro');return}
+    
+    try {
+        console.log('Enviando requisição para API...');
+        const response = await apiRequest('/clientes/cadastrar', {
+            method: 'POST',
+            body: JSON.stringify({ nome, email, telefone, endereco, senha })
+        });
+        
+        console.log('Resposta da API:', response);
+        mostrarMensagem(msgDiv,'Cliente cadastrado com sucesso!','sucesso');
+        
+        ['cadastro-nome','cadastro-email','cadastro-senha','cadastro-confirmar-senha','cadastro-telefone','cadastro-endereco'].forEach(id=>document.getElementById(id).value='');
+        carregarClientesPublicos();
+        setTimeout(()=>{mostrarAba('login');msgDiv.innerHTML=''},2000);
+    } catch (error) {
+        console.error('Erro no cadastro:', error);
         mostrarMensagem(msgDiv, error.message, 'erro');
     }
 }
@@ -112,9 +200,13 @@ async function fazerLogin(e){
     }
 }
 
-function mostrarAreaUsuario(){
-    document.querySelector('.tab-btn:nth-child(1)').style.display='none';
-    document.querySelector('.tab-btn:nth-child(2)').style.display='none';
+async function mostrarAreaUsuario(){
+    // Esconder botões de login/cadastro e select
+    document.getElementById('tipo-usuario').style.display='none';
+    document.querySelector('.tab-btn:nth-child(2)').style.display='none'; // Login
+    document.querySelector('.tab-btn:nth-child(3)').style.display='none'; // Cadastro
+    
+    // Mostrar botões do usuário
     ['aba-produto','aba-consulta','aba-movimentacoes','aba-gerenciar-pedidos'].forEach(id=>document.getElementById(id).style.display='block');
     
     document.querySelectorAll('.form-container').forEach(form=>form.classList.remove('active'));
@@ -122,20 +214,37 @@ function mostrarAreaUsuario(){
     areaUsuario.style.display='block';
     areaUsuario.classList.add('active');
     
-    const totalItens=produtos.filter(p=>p.usuarioId===usuarioLogado.id).reduce((sum,p)=>sum+p.quantidade,0);
-    const itensBaixoEstoque=produtos.filter(p=>p.usuarioId===usuarioLogado.id && p.quantidade <= (p.quantidadeMinima||5)).length;
-    
-    document.getElementById('dados-usuario').innerHTML=`
-        <p><strong>Nome:</strong> ${usuarioLogado.nome}</p>
-        <p><strong>E-mail:</strong> ${usuarioLogado.email}</p>
-        <p><strong>Total de Itens:</strong> ${totalItens}</p>
-        <p><strong>Alertas de Estoque:</strong> <span style="color:${itensBaixoEstoque>0?'#f44336':'#4caf50'}">${itensBaixoEstoque}</span></p>
-        <div class="botoes-usuario">
-            <button onclick="mostrarAba('cadastrar-produto')" class="btn-secondary">➕ Adicionar</button>
-            <button onclick="mostrarAba('consultar-produto')" class="btn-secondary">📦 Estoque</button>
-            <button onclick="mostrarAba('movimentacoes')" class="btn-secondary">📊 Movimentações</button>
-            <button onclick="mostrarAba('gerenciar-pedidos')" class="btn-secondary">🛒 Gerenciar Pedidos</button>
-        </div>`;
+    // Carregar produtos do usuário
+    try {
+        produtos = await apiRequest(`/produtos/${usuarioLogado.id}`);
+        const totalItens=produtos.reduce((sum,p)=>sum+p.quantidade,0);
+        const itensBaixoEstoque=produtos.filter(p=>p.quantidade <= (p.quantidade_minima||5)).length;
+        
+        document.getElementById('dados-usuario').innerHTML=`
+            <p><strong>Nome:</strong> ${usuarioLogado.nome}</p>
+            <p><strong>E-mail:</strong> ${usuarioLogado.email}</p>
+            <p><strong>Total de Itens:</strong> ${totalItens}</p>
+            <p><strong>Alertas de Estoque:</strong> <span style="color:${itensBaixoEstoque>0?'#f44336':'#4caf50'}">${itensBaixoEstoque}</span></p>
+            <div class="botoes-usuario">
+                <button onclick="mostrarAba('cadastrar-produto')" class="btn-secondary">➕ Adicionar</button>
+                <button onclick="mostrarAba('consultar-produto')" class="btn-secondary">📦 Estoque</button>
+                <button onclick="mostrarAba('movimentacoes')" class="btn-secondary">📊 Movimentações</button>
+                <button onclick="mostrarAba('gerenciar-pedidos')" class="btn-secondary">🛒 Gerenciar Pedidos</button>
+            </div>`;
+    } catch (error) {
+        console.error('Erro ao carregar dados do usuário:', error);
+        document.getElementById('dados-usuario').innerHTML=`
+            <p><strong>Nome:</strong> ${usuarioLogado.nome}</p>
+            <p><strong>E-mail:</strong> ${usuarioLogado.email}</p>
+            <p><strong>Total de Itens:</strong> 0</p>
+            <p><strong>Alertas de Estoque:</strong> <span style="color:#4caf50">0</span></p>
+            <div class="botoes-usuario">
+                <button onclick="mostrarAba('cadastrar-produto')" class="btn-secondary">➕ Adicionar</button>
+                <button onclick="mostrarAba('consultar-produto')" class="btn-secondary">📦 Estoque</button>
+                <button onclick="mostrarAba('movimentacoes')" class="btn-secondary">📊 Movimentações</button>
+                <button onclick="mostrarAba('gerenciar-pedidos')" class="btn-secondary">🛒 Gerenciar Pedidos</button>
+            </div>`;
+    }
 }
 
 function fazerLogout(){
@@ -143,9 +252,13 @@ function fazerLogout(){
     localStorage.removeItem('usuarioLogado');
     document.getElementById('area-usuario').style.display='none';
     document.getElementById('area-usuario').classList.remove('active');
-    document.querySelector('.tab-btn:nth-child(1)').style.display='block';
-    document.querySelector('.tab-btn:nth-child(2)').style.display='block';
+    
+    // Restaurar elementos da interface
+    document.getElementById('tipo-usuario').style.display='block';
+    document.querySelector('.tab-btn:nth-child(2)').style.display='block'; // Login
+    document.querySelector('.tab-btn:nth-child(3)').style.display='block'; // Cadastro
     ['aba-produto','aba-consulta','aba-movimentacoes','aba-gerenciar-pedidos'].forEach(id=>document.getElementById(id).style.display='none');
+    
     mostrarAba('login');
     ['login-email','login-senha','login-mensagem'].forEach(id=>document.getElementById(id).value='');
 }
@@ -288,9 +401,9 @@ async function cadastrarClienteForm(e){
 
 async function fazerLoginCliente(e){
     e.preventDefault();
-    const email=document.getElementById('login-cliente-email').value.trim();
-    const senha=document.getElementById('login-cliente-senha').value;
-    const msgDiv=document.getElementById('login-cliente-mensagem');
+    const email=document.getElementById('login-email').value.trim();
+    const senha=document.getElementById('login-senha').value;
+    const msgDiv=document.getElementById('login-mensagem');
     
     if(!validarEmail(email)){mostrarMensagem(msgDiv,'E-mail inválido!','erro');return}
     
@@ -310,11 +423,12 @@ async function fazerLoginCliente(e){
 }
 
 function mostrarAreaCliente(){
-    document.querySelector('.tab-btn:nth-child(1)').style.display='none';
-    document.querySelector('.tab-btn:nth-child(2)').style.display='none';
-    document.querySelector('.tab-btn:nth-child(3)').style.display='none';
-    document.querySelector('.tab-btn:nth-child(4)').style.display='none';
+    // Esconder elementos de login/cadastro
+    document.getElementById('tipo-usuario').style.display='none';
+    document.querySelector('.tab-btn:nth-child(2)').style.display='none'; // Login
+    document.querySelector('.tab-btn:nth-child(3)').style.display='none'; // Cadastro
     
+    // Mostrar botões do cliente
     document.getElementById('aba-pedido').style.display='block';
     document.getElementById('aba-meus-pedidos').style.display='block';
     
@@ -340,16 +454,16 @@ function fazerLogoutCliente(){
     document.getElementById('area-cliente').style.display='none';
     document.getElementById('area-cliente').classList.remove('active');
     
-    document.querySelector('.tab-btn:nth-child(1)').style.display='block';
-    document.querySelector('.tab-btn:nth-child(2)').style.display='block';
-    document.querySelector('.tab-btn:nth-child(3)').style.display='block';
-    document.querySelector('.tab-btn:nth-child(4)').style.display='block';
+    // Restaurar elementos da interface
+    document.getElementById('tipo-usuario').style.display='block';
+    document.querySelector('.tab-btn:nth-child(2)').style.display='block'; // Login
+    document.querySelector('.tab-btn:nth-child(3)').style.display='block'; // Cadastro
     
     document.getElementById('aba-pedido').style.display='none';
     document.getElementById('aba-meus-pedidos').style.display='none';
     
-    mostrarAba('login-cliente');
-    ['login-cliente-email','login-cliente-senha','login-cliente-mensagem'].forEach(id=>document.getElementById(id).value='');
+    mostrarAba('login');
+    ['login-email','login-senha','login-mensagem'].forEach(id=>document.getElementById(id).value='');
 }
 
 // Funções para Pedidos
@@ -724,30 +838,63 @@ async function editarProduto(id){
     alert('Função de edição em desenvolvimento!');
 }
 
-async function verClientesRegistrados(){
-    const listaClientesDiv = document.getElementById('lista-clientes');
+async function verUsuariosRegistrados(){
+    const listaDiv = document.getElementById('lista-clientes');
     const div=document.getElementById('clientes-encontrados');
     
     try {
-        const clientes = await apiRequest('/usuarios');
+        const usuarios = await apiRequest('/usuarios');
+        
+        if(usuarios.length===0){
+            div.innerHTML='<p style="text-align:center;color:#6c757d;">Nenhum usuário encontrado.</p>';
+        } else {
+            div.innerHTML=usuarios.map(u=>`
+                <div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid #2196f3;">
+                    <h4 style="margin:0 0 0.5rem 0;color:#333;">${u.nome}</h4>
+                    <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>E-mail:</strong> ${u.email}</p>
+                    <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>ID:</strong> ${u.id}</p>
+                    <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>Data:</strong> ${new Date(u.data_cadastro).toLocaleDateString('pt-BR')}</p>
+                </div>
+            `).join('');
+        }
+        
+        if (listaDiv.style.display === 'none') {
+            listaDiv.style.display = 'block';
+        } else {
+            listaDiv.style.display = 'none';
+        }
+    } catch (error) {
+        div.innerHTML = '<p style="text-align:center;color:#f44336;">Erro ao carregar usuários.</p>';
+        console.error('Erro ao buscar usuários:', error);
+    }
+}
+
+async function verClientesRegistrados(){
+    const listaDiv = document.getElementById('lista-clientes');
+    const div=document.getElementById('clientes-encontrados');
+    
+    try {
+        const clientes = await apiRequest('/clientes');
         
         if(clientes.length===0){
             div.innerHTML='<p style="text-align:center;color:#6c757d;">Nenhum cliente encontrado.</p>';
         } else {
             div.innerHTML=clientes.map(c=>`
-                <div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid #2196f3;">
+                <div style="background:#f8f9fa;padding:1rem;margin-bottom:1rem;border-radius:8px;border-left:4px solid #4caf50;">
                     <h4 style="margin:0 0 0.5rem 0;color:#333;">${c.nome}</h4>
                     <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>E-mail:</strong> ${c.email}</p>
+                    <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>Telefone:</strong> ${c.telefone}</p>
+                    <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>Endereço:</strong> ${c.endereco}</p>
                     <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>ID:</strong> ${c.id}</p>
                     <p style="margin:0.3rem 0;color:#6c757d;font-size:0.9rem;"><strong>Data:</strong> ${new Date(c.data_cadastro).toLocaleDateString('pt-BR')}</p>
                 </div>
             `).join('');
         }
         
-        if (listaClientesDiv.style.display === 'none') {
-            listaClientesDiv.style.display = 'block';
+        if (listaDiv.style.display === 'none') {
+            listaDiv.style.display = 'block';
         } else {
-            listaClientesDiv.style.display = 'none';
+            listaDiv.style.display = 'none';
         }
     } catch (error) {
         div.innerHTML = '<p style="text-align:center;color:#f44336;">Erro ao carregar clientes.</p>';

@@ -20,6 +20,20 @@
       "senha": "$2a$10$wSz5zCjg58bdW8JCGnTSPeJDjPf3mTwOeYrKEsSwQX8K/x4kC0ObK",
       "id": 3,
       "data_cadastro": "2026-04-08T14:02:21.574Z"
+    },
+    {
+      "nome": "william",
+      "email": "william@email.com",
+      "senha": "$2a$10$Ic74i76OratCSNXikrJeV.jOmTQBvWhIlvU9RR.7oOx9gB5hQbSOW",
+      "id": 4,
+      "data_cadastro": "2026-04-13T12:45:22.472Z"
+    },
+    {
+      "nome": "Lucas dobgenski",
+      "email": "sougay123@gmail.com",
+      "senha": "$2a$10$mGLVK2Gm6EsKZ5c.v9vT/eyhtlPA.YeV0d.Yl7v35CN8OyOA6gwje",
+      "id": 5,
+      "data_cadastro": "2026-04-14T11:36:25.913Z"
     }
   ],
   "clientes": [
@@ -49,6 +63,24 @@
       "senha": "$2a$10$ZZD8sluoJbypW/nsCXDQWu1QfOoZA2E3tJ81kqTa7RmjT0lfsKGku",
       "id": 3,
       "data_cadastro": "2026-04-08T14:06:19.836Z"
+    },
+    {
+      "nome": "Teste Cliente",
+      "email": "teste@teste.com",
+      "telefone": "11999999999",
+      "endereco": "Rua Teste, 123",
+      "senha": "$2a$10$c8eqx2BJfsY247sFQOQ7POLi5546i2g9AkCh/V2OzaEZG1sNN0Gne",
+      "id": 4,
+      "data_cadastro": "2026-04-14T12:37:02.359Z"
+    },
+    {
+      "nome": "lucas",
+      "email": "roginski@gmail.com",
+      "telefone": "22000000000",
+      "endereco": "rua do grau faiado",
+      "senha": "$2a$10$R88Z6ZjS7zYSlJInu9K7Lugv4k5g5yIwuhbH4SmR7qSpGUgv.KyQW",
+      "id": 5,
+      "data_cadastro": "2026-04-14T12:40:47.562Z"
     }
   ],
   "produtos": [
@@ -70,7 +102,7 @@
       "codigo": "15346",
       "descricao": "s10",
       "preco": 5000,
-      "quantidade": 3,
+      "quantidade": 2,
       "quantidade_minima": 2,
       "categoria": "eletronico",
       "fornecedor": "samsung",
@@ -103,6 +135,19 @@
       "usuario_id": 3,
       "id": 4,
       "data_cadastro": "2026-04-08T14:04:42.790Z"
+    },
+    {
+      "nome": "camisa do santos",
+      "codigo": "3143",
+      "descricao": "um item bom confortavel bom de usar",
+      "preco": 250,
+      "quantidade": 22,
+      "quantidade_minima": 10,
+      "categoria": "roupa",
+      "fornecedor": "toper",
+      "usuario_id": 4,
+      "id": 5,
+      "data_cadastro": "2026-04-13T12:48:43.259Z"
     }
   ],
   "movimentacoes": [
@@ -204,6 +249,28 @@
       "usuario_id": 3,
       "id": 9,
       "data_movimentacao": "2026-04-08T14:07:46.513Z"
+    },
+    {
+      "produto_id": 5,
+      "produto_nome": "camisa do santos",
+      "tipo": "entrada",
+      "quantidade": 22,
+      "motivo": "Cadastro inicial",
+      "observacao": "Item adicionado ao estoque",
+      "usuario_id": 4,
+      "id": 10,
+      "data_movimentacao": "2026-04-13T12:48:43.263Z"
+    },
+    {
+      "produto_id": 2,
+      "produto_nome": "celular",
+      "tipo": "saida",
+      "quantidade": 1,
+      "motivo": "Venda",
+      "observacao": "Pedido #3 - Cliente: 2",
+      "usuario_id": 1,
+      "id": 11,
+      "data_movimentacao": "2026-04-14T12:47:31.104Z"
     }
   ],
   "pedidos": [
@@ -229,6 +296,18 @@
       "total": 469,
       "id": 2,
       "data_pedido": "2026-04-08T14:07:07.948Z",
+      "status": "enviado"
+    },
+    {
+      "cliente_id": 2,
+      "produto_id": 2,
+      "produto_nome": "celular",
+      "quantidade": 1,
+      "observacao": "a vista",
+      "preco_unitario": 5000,
+      "total": 5000,
+      "id": 3,
+      "data_pedido": "2026-04-14T12:47:12.928Z",
       "status": "enviado"
     }
   ]
